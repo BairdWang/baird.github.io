@@ -10,8 +10,11 @@
       --text: #f2ece4;
       --text-muted: rgba(242, 236, 228, 0.55);
       --contact-muted: #888888;
-      --gap: clamp(14px, 1.35vw, 22px);
-      --max: min(100%, 1800px);
+      --thumb-w: 610px;
+      --thumb-h: 480px;
+      --grid-gap-x: 26px;
+      --grid-gap-y: 52px;
+      --max: min(100%, calc(var(--thumb-w) * 3 + var(--grid-gap-x) * 2));
     }
 
     *,
@@ -56,15 +59,20 @@
 
     .works {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: var(--gap);
+      grid-template-columns: repeat(3, minmax(0, var(--thumb-w)));
+      column-gap: var(--grid-gap-x);
+      row-gap: var(--grid-gap-y);
       list-style: none;
       margin: 0;
       padding: 0;
+      justify-content: center;
     }
 
     .work {
       margin: 0;
+      width: 100%;
+      max-width: var(--thumb-w);
+      justify-self: center;
     }
 
     .work-trigger {
@@ -83,7 +91,9 @@
 
     .thumb {
       position: relative;
-      aspect-ratio: 1 / 1;
+      width: 100%;
+      max-width: var(--thumb-w);
+      aspect-ratio: 610 / 480;
       overflow: hidden;
       background: #111;
     }
@@ -159,15 +169,20 @@
     }
 
     #detail {
-      width: min(100vw - 2rem, 1920px);
-      max-width: 1920px;
-      max-height: min(96vh, 100%);
-      margin: auto;
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      max-width: none;
+      height: 100%;
+      max-height: none;
+      margin: 0;
       padding: 0;
       border: none;
       background: var(--bg);
       color: var(--text);
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: contain;
     }
 
     #detail::backdrop {
@@ -175,26 +190,18 @@
     }
 
     .detail-inner {
-      padding: clamp(1rem, 3vw, 1.5rem) 0 clamp(1.25rem, 3vw, 2rem);
-      max-height: min(96vh, 100%);
-      overflow-y: auto;
-      overflow-x: hidden;
-      overscroll-behavior: contain;
-      scrollbar-width: none;
-      -ms-overflow-style: none;
-    }
-
-    .detail-inner::-webkit-scrollbar,
-    #detail::-webkit-scrollbar {
-      display: none;
-      width: 0 !important;
-      height: 0 !important;
-      background: transparent;
+      padding: clamp(1.25rem, 4vw, 2rem) 0 clamp(2rem, 5vw, 3rem);
+      margin: 0;
+      overflow: visible;
     }
 
     .detail-top {
-      padding: 0 clamp(0.5rem, 2vw, 1rem);
-      margin-bottom: 1.25rem;
+      box-sizing: border-box;
+      max-width: 1920px;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 0 clamp(1.25rem, 5vw, 2.5rem);
+      margin-bottom: clamp(1rem, 3vw, 1.5rem);
     }
 
     .detail-title {
@@ -206,18 +213,23 @@
 
     #detail-body {
       padding: 0;
-      max-width: 1920px;
-      margin: 0 auto;
+      width: 100%;
+      max-width: none;
+      margin: 0;
     }
 
     .detail-footer {
+      box-sizing: border-box;
       display: flex;
       flex-wrap: wrap;
-      gap: 1.25rem 2rem;
-      justify-content: flex-start;
+      gap: 1.25rem 2.5rem;
+      justify-content: center;
       align-items: center;
-      margin-top: 2rem;
-      padding: 1.5rem clamp(0.5rem, 2vw, 1rem) 0;
+      max-width: 1920px;
+      margin-left: auto;
+      margin-right: auto;
+      margin-top: clamp(2rem, 5vw, 3rem);
+      padding: 1.75rem clamp(1.25rem, 5vw, 2.5rem) 0;
       border-top: 1px solid #2a2a2a;
     }
 
@@ -242,16 +254,19 @@
 
     .detail-note {
       margin: 0 0 1.5rem;
+      padding: 0 clamp(1.25rem, 5vw, 2.5rem);
       font-size: 0.9375rem;
       line-height: 1.6;
       color: var(--text-muted);
+      max-width: 1920px;
+      box-sizing: border-box;
     }
 
     .detail-video {
       position: relative;
       width: 100%;
-      max-width: 1920px;
-      margin: 0 auto 0;
+      max-width: none;
+      margin: 0;
       aspect-ratio: 16 / 9;
       overflow: hidden;
       background: #111;
@@ -276,15 +291,15 @@
       height: auto;
     }
 
-    @media (max-width: 900px) {
+    @media (max-width: 1300px) {
       .works {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, var(--thumb-w)));
       }
     }
 
-    @media (max-width: 520px) {
+    @media (max-width: 700px) {
       .works {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, var(--thumb-w));
       }
     }
   </style>
@@ -302,8 +317,8 @@
             <img
               src="https://cdn.myportfolio.com/197a6bd9-dcd9-42d3-8e20-5e24d83ae321/9242c6dc-ac21-4fe9-965b-66db5717d744_rwc_461x253x996x778x996.png?h=75c0ac279b0d9625a763413d8c20e514"
               alt="Slot Game"
-              width="800"
-              height="800"
+              width="610"
+              height="480"
               loading="lazy"
             />
           </div>
@@ -316,8 +331,8 @@
             <img
               src="https://cdn.myportfolio.com/197a6bd9-dcd9-42d3-8e20-5e24d83ae321/514bf836-55ad-4b80-bf04-f9c41ebd0a4e_car_202x158.jpg?h=d410549756f8bea6086bb060852c70cf"
               alt="Squid Game Unleashed"
-              width="800"
-              height="800"
+              width="610"
+              height="480"
               loading="lazy"
             />
           </div>
@@ -330,8 +345,8 @@
             <img
               src="https://cdn.myportfolio.com/197a6bd9-dcd9-42d3-8e20-5e24d83ae321/d7767aa5-0e65-49c0-858d-78708e8928e8_car_202x158.png?h=b09d22b1002ec149755b8d0124411c51"
               alt="Marvel World Of Heroes"
-              width="800"
-              height="800"
+              width="610"
+              height="480"
               loading="lazy"
             />
           </div>
@@ -344,8 +359,8 @@
             <img
               src="https://cdn.myportfolio.com/197a6bd9-dcd9-42d3-8e20-5e24d83ae321/58c90e5a-1dea-4ade-91ab-9512ef09d0c0_rwc_1159x381x1527x1193x1527.png?h=46a54a1699f206c8f6ad1a420cb9901f"
               alt="Magic Spellslingers"
-              width="800"
-              height="800"
+              width="610"
+              height="480"
               loading="lazy"
             />
           </div>
@@ -358,8 +373,8 @@
             <img
               src="https://cdn.myportfolio.com/197a6bd9-dcd9-42d3-8e20-5e24d83ae321/d21433de-5717-4cc7-94eb-715501193ec7_rwc_171x11x856x669x856.jpg?h=5dd46741081334d8dc9bfc896ad4e559"
               alt="Gothic Style UI Design"
-              width="800"
-              height="800"
+              width="610"
+              height="480"
               loading="lazy"
             />
           </div>
@@ -372,8 +387,8 @@
             <img
               src="https://cdn.myportfolio.com/197a6bd9-dcd9-42d3-8e20-5e24d83ae321/63e07ed7-589e-469e-ad88-6ea7b6fcf112_rwc_304x11x836x654x836.jpg?h=4dfad265046e12944334e160852d0669"
               alt="Chinese Style UI Design"
-              width="800"
-              height="800"
+              width="610"
+              height="480"
               loading="lazy"
             />
           </div>
@@ -386,8 +401,8 @@
             <img
               src="https://cdn.myportfolio.com/197a6bd9-dcd9-42d3-8e20-5e24d83ae321/453515d0-114c-4694-b990-1e7b38ff91ab_rwc_83x46x512x400x512.png?h=b183088ef55485a3b722bd8a618bf59d"
               alt="Phantom Tribe"
-              width="800"
-              height="800"
+              width="610"
+              height="480"
               loading="lazy"
             />
           </div>
@@ -400,8 +415,8 @@
             <img
               src="https://cdn.myportfolio.com/197a6bd9-dcd9-42d3-8e20-5e24d83ae321/ec91fb55-62ce-4513-b4ce-12c3c53e740d_rwc_150x409x523x409x523.jpg?h=26e4223122d61abb3ad3ca9b337da2b9"
               alt="Cute Style UI Design"
-              width="800"
-              height="800"
+              width="610"
+              height="480"
               loading="lazy"
             />
           </div>
@@ -414,8 +429,8 @@
             <img
               src="https://cdn.myportfolio.com/197a6bd9-dcd9-42d3-8e20-5e24d83ae321/b5104a91-fbd2-4e54-b192-3e74dc4d0c79_rwc_272x36x665x520x665.jpg?h=05f35de35567119e573a28f215b22c79"
               alt="Coiling Dragons Game Hall"
-              width="800"
-              height="800"
+              width="610"
+              height="480"
               loading="lazy"
             />
           </div>
@@ -428,8 +443,8 @@
             <img
               src="https://cdn.myportfolio.com/197a6bd9-dcd9-42d3-8e20-5e24d83ae321/8dddc77f-bd9e-4947-9e73-112b47853516_car_202x158.png?h=c9add6587ac0a2705402597ec7d72ac8"
               alt="Music Ninja"
-              width="800"
-              height="800"
+              width="610"
+              height="480"
               loading="lazy"
             />
           </div>
@@ -451,14 +466,14 @@
   </div>
 
   <dialog id="detail">
-    <div class="detail-inner" id="detail-scroll">
+    <div class="detail-inner">
       <div class="detail-top">
         <h2 class="detail-title" id="detail-title"></h2>
       </div>
       <div id="detail-body"></div>
       <div class="detail-footer">
-        <button type="button" id="detail-back-top">Back to Top</button>
         <button type="button" id="detail-close-bottom">Close</button>
+        <button type="button" id="detail-back-top">Back to Top</button>
       </div>
     </div>
   </dialog>
@@ -593,7 +608,6 @@
       };
 
       var dialogEl = document.getElementById("detail");
-      var scrollEl = document.getElementById("detail-scroll");
       var titleEl = document.getElementById("detail-title");
       var bodyEl = document.getElementById("detail-body");
       var closeBottomBtn = document.getElementById("detail-close-bottom");
@@ -627,9 +641,7 @@
             '" alt="" loading="lazy" /></figure>';
         }
         bodyEl.innerHTML = html;
-        if (scrollEl) {
-          scrollEl.scrollTop = 0;
-        }
+        dialogEl.scrollTop = 0;
       }
 
       function lockPageScroll(lock) {
@@ -648,6 +660,7 @@
           renderProject(id);
           lockPageScroll(true);
           dialogEl.showModal();
+          dialogEl.scrollTop = 0;
         });
       });
 
@@ -656,9 +669,7 @@
       });
 
       backTopBtn.addEventListener("click", function () {
-        if (scrollEl) {
-          scrollEl.scrollTo({ top: 0, behavior: "smooth" });
-        }
+        dialogEl.scrollTo({ top: 0, behavior: "smooth" });
       });
 
       dialogEl.addEventListener("click", function (e) {
