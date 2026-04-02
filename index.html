@@ -10,10 +10,13 @@
       --text: #f2ece4;
       --text-muted: rgba(242, 236, 228, 0.55);
       --contact-muted: #888888;
-      /* Adobe Portfolio: .site-container { max-width: 1400px } */
       --site-max: 1400px;
-      /* .project-cover: width 29%; margin-right: 6.5%; hold-space aspect padding-bottom */
-      --cover-aspect-pad: 78.21782%;
+      --thumb-w: 610px;
+      --thumb-h: 470px;
+      --works-gap-x: 120px;
+      --works-gap-y: 160px;
+      --works-grid-w: calc(3 * var(--thumb-w) + 2 * var(--works-gap-x));
+      --detail-img-w: 1890px;
     }
 
     *,
@@ -39,7 +42,7 @@
     }
 
     #page-root .page {
-      max-width: var(--site-max);
+      max-width: min(100%, var(--works-grid-w));
       margin: 0 auto;
       padding: clamp(0.625rem, 2vw, 1.25rem) clamp(1.25rem, 5vw, 3rem) clamp(4rem, 12vw, 7rem);
     }
@@ -56,24 +59,22 @@
       line-height: 1.1;
     }
 
-    /* .project-covers { display: flex; flex-wrap: wrap; padding-top: 40px; } */
     .works {
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: repeat(3, var(--thumb-w));
+      column-gap: var(--works-gap-x);
+      row-gap: var(--works-gap-y);
       list-style: none;
       margin: 0;
       padding: 40px 0 0;
+      justify-content: center;
     }
 
     .work {
       box-sizing: border-box;
-      width: 29%;
-      margin-right: 6.5%;
-      margin-bottom: 0;
-    }
-
-    .work:nth-child(3n) {
-      margin-right: 0;
+      width: var(--thumb-w);
+      max-width: 100%;
+      margin: 0;
     }
 
     .work-trigger {
@@ -90,18 +91,13 @@
       outline-offset: 4px;
     }
 
-    /* .project-cover.hold-space .cover-image:before { padding-bottom: 78.21782%; } */
     .thumb {
       position: relative;
-      width: 100%;
+      width: var(--thumb-w);
+      max-width: 100%;
+      height: var(--thumb-h);
       overflow: hidden;
       background: #111;
-    }
-
-    .thumb::before {
-      content: "";
-      display: block;
-      padding-bottom: var(--cover-aspect-pad);
     }
 
     .thumb img {
@@ -193,7 +189,7 @@
 
     .detail-inner {
       box-sizing: border-box;
-      max-width: var(--site-max);
+      max-width: var(--detail-img-w);
       margin: 0 auto;
       padding: clamp(1.25rem, 4vw, 2rem) 0 clamp(3rem, 8vw, 5rem);
     }
@@ -204,17 +200,42 @@
       padding: 0 clamp(1.25rem, 5vw, 2.5rem);
     }
 
-    .detail-title {
+    .detail-back-header {
       margin: 0;
-      font-size: clamp(1.25rem, 3vw, 1.5rem);
-      font-weight: 500;
-      letter-spacing: 0.03em;
+      padding: 0;
+      border: none;
+      background: none;
+      font: inherit;
+      font-size: 0.8125rem;
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      color: #888888;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .detail-back-header:hover,
+    .detail-back-header:focus-visible {
+      color: #aaaaaa;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
     }
 
     #detail-body {
       padding: 0;
       width: 100%;
-      margin: 0;
+      max-width: var(--detail-img-w);
+      margin: 0 auto;
     }
 
     .detail-footer {
@@ -280,43 +301,49 @@
       display: block;
     }
 
-    /* .page img { display: block; margin: 0 auto; max-width: 100%; } */
     .detail-figure img {
       display: block;
       margin: 0 auto;
-      max-width: 100%;
       width: 100%;
+      max-width: var(--detail-img-w);
       height: auto;
     }
 
+    @media (max-width: 2100px) {
+      .works {
+        grid-template-columns: repeat(2, minmax(0, var(--thumb-w)));
+        column-gap: var(--works-gap-x);
+        row-gap: var(--works-gap-y);
+      }
+
+      #page-root .page {
+        max-width: min(100%, calc(2 * var(--thumb-w) + var(--works-gap-x)));
+      }
+    }
+
+    @media (max-width: 800px) {
+      .works {
+        grid-template-columns: minmax(0, var(--thumb-w));
+      }
+
+      #page-root .page {
+        max-width: min(100%, var(--thumb-w));
+      }
+
+      .thumb {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 610 / 470;
+      }
+    }
+
     @media (max-width: 932px) {
-      .work {
-        width: 46.75%;
-      }
-
-      .work:nth-child(2n) {
-        margin-right: 0 !important;
-      }
-
-      .work:nth-child(3n) {
-        margin-right: 6.5%;
-      }
-
-      .work:nth-child(3n + 1) {
-        clear: none;
-      }
-
       .works {
         padding-top: 20px;
       }
     }
 
     @media (max-width: 540px) {
-      .work {
-        margin-right: 0 !important;
-        width: 100%;
-      }
-
       .works {
         padding-top: 18px;
       }
@@ -338,7 +365,7 @@
               src="https://cdn.myportfolio.com/197a6bd9-dcd9-42d3-8e20-5e24d83ae321/9242c6dc-ac21-4fe9-965b-66db5717d744_rwc_461x253x996x778x996.png?h=75c0ac279b0d9625a763413d8c20e514"
               alt="Slot Game"
               width="610"
-              height="480"
+              height="470"
               loading="lazy"
             />
           </div>
@@ -352,7 +379,7 @@
               src="https://cdn.myportfolio.com/197a6bd9-dcd9-42d3-8e20-5e24d83ae321/514bf836-55ad-4b80-bf04-f9c41ebd0a4e_car_202x158.jpg?h=d410549756f8bea6086bb060852c70cf"
               alt="Squid Game Unleashed"
               width="610"
-              height="480"
+              height="470"
               loading="lazy"
             />
           </div>
@@ -366,7 +393,7 @@
               src="https://cdn.myportfolio.com/197a6bd9-dcd9-42d3-8e20-5e24d83ae321/d7767aa5-0e65-49c0-858d-78708e8928e8_car_202x158.png?h=b09d22b1002ec149755b8d0124411c51"
               alt="Marvel World Of Heroes"
               width="610"
-              height="480"
+              height="470"
               loading="lazy"
             />
           </div>
@@ -380,7 +407,7 @@
               src="https://cdn.myportfolio.com/197a6bd9-dcd9-42d3-8e20-5e24d83ae321/58c90e5a-1dea-4ade-91ab-9512ef09d0c0_rwc_1159x381x1527x1193x1527.png?h=46a54a1699f206c8f6ad1a420cb9901f"
               alt="Magic Spellslingers"
               width="610"
-              height="480"
+              height="470"
               loading="lazy"
             />
           </div>
@@ -394,7 +421,7 @@
               src="https://cdn.myportfolio.com/197a6bd9-dcd9-42d3-8e20-5e24d83ae321/d21433de-5717-4cc7-94eb-715501193ec7_rwc_171x11x856x669x856.jpg?h=5dd46741081334d8dc9bfc896ad4e559"
               alt="Gothic Style UI Design"
               width="610"
-              height="480"
+              height="470"
               loading="lazy"
             />
           </div>
@@ -408,7 +435,7 @@
               src="https://cdn.myportfolio.com/197a6bd9-dcd9-42d3-8e20-5e24d83ae321/63e07ed7-589e-469e-ad88-6ea7b6fcf112_rwc_304x11x836x654x836.jpg?h=4dfad265046e12944334e160852d0669"
               alt="Chinese Style UI Design"
               width="610"
-              height="480"
+              height="470"
               loading="lazy"
             />
           </div>
@@ -422,7 +449,7 @@
               src="https://cdn.myportfolio.com/197a6bd9-dcd9-42d3-8e20-5e24d83ae321/453515d0-114c-4694-b990-1e7b38ff91ab_rwc_83x46x512x400x512.png?h=b183088ef55485a3b722bd8a618bf59d"
               alt="Phantom Tribe"
               width="610"
-              height="480"
+              height="470"
               loading="lazy"
             />
           </div>
@@ -436,7 +463,7 @@
               src="https://cdn.myportfolio.com/197a6bd9-dcd9-42d3-8e20-5e24d83ae321/ec91fb55-62ce-4513-b4ce-12c3c53e740d_rwc_150x409x523x409x523.jpg?h=26e4223122d61abb3ad3ca9b337da2b9"
               alt="Cute Style UI Design"
               width="610"
-              height="480"
+              height="470"
               loading="lazy"
             />
           </div>
@@ -450,7 +477,7 @@
               src="https://cdn.myportfolio.com/197a6bd9-dcd9-42d3-8e20-5e24d83ae321/b5104a91-fbd2-4e54-b192-3e74dc4d0c79_rwc_272x36x665x520x665.jpg?h=05f35de35567119e573a28f215b22c79"
               alt="Coiling Dragons Game Hall"
               width="610"
-              height="480"
+              height="470"
               loading="lazy"
             />
           </div>
@@ -464,7 +491,7 @@
               src="https://cdn.myportfolio.com/197a6bd9-dcd9-42d3-8e20-5e24d83ae321/8dddc77f-bd9e-4947-9e73-112b47853516_car_202x158.png?h=c9add6587ac0a2705402597ec7d72ac8"
               alt="Music Ninja"
               width="610"
-              height="480"
+              height="470"
               loading="lazy"
             />
           </div>
@@ -489,7 +516,8 @@
   <div id="detail" class="project-view" hidden>
     <div class="detail-inner">
       <div class="detail-top">
-        <h1 class="detail-title" id="detail-title"></h1>
+        <button type="button" class="detail-back-header" id="detail-back-header">Back</button>
+        <span class="sr-only" id="detail-title"></span>
       </div>
       <div id="detail-body"></div>
       <div class="detail-footer">
@@ -634,11 +662,13 @@
       var bodyEl = document.getElementById("detail-body");
       var closeBottomBtn = document.getElementById("detail-close-bottom");
       var backTopBtn = document.getElementById("detail-back-top");
+      var backHeaderBtn = document.getElementById("detail-back-header");
 
       function renderProject(id) {
         var p = PROJECTS[id];
         if (!p) return;
         titleEl.textContent = p.title;
+        document.title = p.title + " — Baird Wang";
         var html = "";
         if (p.note) {
           html +=
@@ -674,8 +704,13 @@
       function closeProjectView() {
         detailEl.hidden = true;
         pageRoot.hidden = false;
+        document.title = "Baird Wang — Portfolio";
         window.scrollTo(0, 0);
       }
+
+      backHeaderBtn.addEventListener("click", function () {
+        closeProjectView();
+      });
 
       document.querySelectorAll(".work-trigger").forEach(function (btn) {
         btn.addEventListener("click", function () {
