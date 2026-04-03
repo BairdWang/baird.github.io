@@ -23,6 +23,11 @@
       box-sizing: border-box;
     }
 
+    button {
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
     html {
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
@@ -37,6 +42,8 @@
       font-size: 15px;
       line-height: 1.5;
       letter-spacing: 0.01em;
+      user-select: text;
+      -webkit-user-select: text;
     }
 
     #page-root .page {
@@ -48,16 +55,17 @@
     }
 
     header {
-      margin-bottom: clamp(1.5rem, 5vw, 2.75rem);
+      margin-bottom: clamp(1rem, 3.33vw, 1.833rem);
       text-align: center;
     }
 
     .name {
       margin: 0;
-      font-size: clamp(3.375rem, 7.5vw, 4.05rem);
+      font-size: calc(clamp(3.375rem, 7.5vw, 4.05rem) * 0.85);
       font-weight: 100;
       letter-spacing: 0.06em;
       line-height: 1.1;
+      transform: translateY(-10px);
     }
 
     /* Adobe .project-covers + .project-cover */
@@ -66,7 +74,7 @@
       flex-wrap: wrap;
       list-style: none;
       margin: 0;
-      padding: 40px 0 0;
+      padding: calc(40px * 2 / 3) 0 0;
     }
 
     .work {
@@ -92,6 +100,8 @@
       text-align: left;
       cursor: pointer;
       outline-offset: 4px;
+      user-select: text;
+      -webkit-user-select: text;
     }
 
     .thumb {
@@ -182,6 +192,7 @@
       flex-wrap: wrap;
       align-items: center;
       gap: 0.65rem;
+      margin-top: -10px;
     }
 
     .contact-email {
@@ -211,6 +222,8 @@
       cursor: pointer;
       border-radius: 4px;
       line-height: 0;
+      user-select: text;
+      -webkit-user-select: text;
     }
 
     .contact-copy:hover,
@@ -222,6 +235,8 @@
 
     .contact-copy svg {
       display: block;
+      width: calc(20px * 0.92);
+      height: calc(20px * 0.92);
     }
 
     .contact-tooltip-hover {
@@ -301,12 +316,18 @@
 
     .detail-top {
       box-sizing: border-box;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 0.5rem 1rem;
       margin-bottom: clamp(1rem, 3vw, 1.5rem);
       padding: 0;
-      text-align: left;
+      text-align: center;
     }
 
     .detail-back-header {
+      grid-column: 1;
+      justify-self: start;
       margin: 0;
       padding: 0;
       border: none;
@@ -318,6 +339,16 @@
       color: #888888;
       cursor: pointer;
       text-align: left;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    .detail-project-title.name {
+      grid-column: 2;
+      justify-self: center;
+      margin: 0;
+      max-width: min(100vw - 8rem, 40rem);
+      transform: none;
     }
 
     .detail-back-header:hover,
@@ -371,6 +402,8 @@
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
+      user-select: text;
+      -webkit-user-select: text;
     }
 
     .detail-footer-btn:hover,
@@ -424,7 +457,7 @@
 
     @media (max-width: 932px) {
       .works {
-        padding-top: 20px;
+        padding-top: calc(20px * 2 / 3);
       }
 
       .caption {
@@ -452,7 +485,7 @@
 
     @media (max-width: 540px) {
       .works {
-        padding-top: 18px;
+        padding-top: calc(18px * 2 / 3);
       }
 
       .work {
@@ -476,20 +509,6 @@
     </header>
 
     <ul class="works" aria-label="Selected work">
-      <li class="work">
-        <button type="button" class="work-trigger" data-project="slot-game">
-          <div class="thumb">
-            <img
-              src="https://cdn.myportfolio.com/197a6bd9-dcd9-42d3-8e20-5e24d83ae321/9242c6dc-ac21-4fe9-965b-66db5717d744_rwc_461x253x996x778x996.png?h=75c0ac279b0d9625a763413d8c20e514"
-              alt="Slot Game"
-              width="610"
-              height="470"
-              loading="lazy"
-            />
-          </div>
-          <p class="caption">Slot Game</p>
-        </button>
-      </li>
       <li class="work">
         <button type="button" class="work-trigger" data-project="squid-game-unleashed">
           <div class="thumb">
@@ -603,6 +622,20 @@
         </button>
       </li>
       <li class="work">
+        <button type="button" class="work-trigger" data-project="slot-game">
+          <div class="thumb">
+            <img
+              src="https://cdn.myportfolio.com/197a6bd9-dcd9-42d3-8e20-5e24d83ae321/9242c6dc-ac21-4fe9-965b-66db5717d744_rwc_461x253x996x778x996.png?h=75c0ac279b0d9625a763413d8c20e514"
+              alt="Slot Game"
+              width="610"
+              height="470"
+              loading="lazy"
+            />
+          </div>
+          <p class="caption">Slot Game</p>
+        </button>
+      </li>
+      <li class="work">
         <button type="button" class="work-trigger" data-project="music-ninja">
           <div class="thumb">
             <img
@@ -630,7 +663,7 @@
         <span class="contact-email" id="contact-email-text">younger4005@gmail.com</span>
         <span class="contact-copy-wrap">
           <button type="button" class="contact-copy" id="contact-copy-btn" aria-label="Copy email to clipboard">
-            <svg class="contact-copy-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <svg class="contact-copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
             </svg>
@@ -647,7 +680,7 @@
     <div class="detail-inner">
       <div class="detail-top">
         <button type="button" class="detail-back-header" id="detail-back-header" aria-label="Back to gallery">&lt; Back</button>
-        <span class="sr-only" id="detail-title"></span>
+        <h1 class="name detail-project-title" id="detail-project-heading"></h1>
       </div>
       <div id="detail-body"></div>
       <div class="detail-footer">
@@ -751,8 +784,6 @@
         },
         "phantom-tribe": {
           title: "Phantom Tribe",
-          note:
-            "This is a UI design practice project. From the original Johannes Helgeson",
           videos: [],
           images: [
             "https://cdn.myportfolio.com/197a6bd9-dcd9-42d3-8e20-5e24d83ae321/300dc376-7587-44e6-bfd8-e1f6c4a2a0fa_rw_1200.jpg?h=8678f1dd1f0f14bdefbb5100e5bc820c",
@@ -798,7 +829,7 @@
 
       var pageRoot = document.getElementById("page-root");
       var detailEl = document.getElementById("detail");
-      var titleEl = document.getElementById("detail-title");
+      var titleEl = document.getElementById("detail-project-heading");
       var bodyEl = document.getElementById("detail-body");
       var closeBottomBtn = document.getElementById("detail-close-bottom");
       var backTopBtn = document.getElementById("detail-back-top");
@@ -844,6 +875,7 @@
       function closeProjectView() {
         detailEl.hidden = true;
         pageRoot.hidden = false;
+        titleEl.textContent = "";
         document.title = "Baird Wang — Portfolio";
         window.scrollTo(0, 0);
       }
