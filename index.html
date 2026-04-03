@@ -15,6 +15,8 @@
       /* Max thumb canvas (work page scales down inside column) */
       --thumb-max-w: 610px;
       --detail-img-w: 1890px;
+      /* Homepage "Baird Wang" font / thumb-column width */
+      --name-thumb-ratio: 0.146;
     }
 
     *,
@@ -69,16 +71,27 @@
       transform: translateY(-10px);
     }
 
+    /*
+      Match homepage title to .thumb column width: min(% of .page, --thumb-max-w) * --name-thumb-ratio.
+      Narrowest (≤540px): keep same ratio as widest, then 0.5×; drop 1rem floor so title tracks thumb.
+    */
     /* Match homepage title scale to .thumb column: min(% of .page, --thumb-max-w) */
     #page-root .page > header .name {
       font-size: calc(clamp(3.375rem, 7.5vw, 4.05rem) * 0.85);
+    }
+
+    /* No cqi: at narrowest, title half of vw-based size */
+    @media (max-width: 540px) {
+      #page-root .page > header .name {
+        font-size: calc(clamp(3.375rem, 7.5vw, 4.05rem) * 0.85 * 0.5);
+      }
     }
 
     @supports (font-size: 1cqi) {
       #page-root .page > header .name {
         font-size: clamp(
           1rem,
-          calc(min(29cqi, var(--thumb-max-w)) * 0.146),
+          calc(min(29cqi, var(--thumb-max-w)) * var(--name-thumb-ratio)),
           calc(4.05rem * 0.85)
         );
       }
@@ -87,7 +100,7 @@
         #page-root .page > header .name {
           font-size: clamp(
             1rem,
-            calc(min(46.75cqi, var(--thumb-max-w)) * 0.146),
+            calc(min(46.75cqi, var(--thumb-max-w)) * var(--name-thumb-ratio)),
             calc(4.05rem * 0.85)
           );
         }
@@ -95,10 +108,12 @@
 
       @media (max-width: 540px) {
         #page-root .page > header .name {
-          font-size: clamp(
-            1rem,
-            calc(min(100cqi, var(--thumb-max-w)) * 0.146),
-            calc(4.05rem * 0.85)
+          font-size: min(
+            calc(4.05rem * 0.85 * 0.5),
+            max(
+              0.625rem,
+              calc(min(100cqi, var(--thumb-max-w)) * var(--name-thumb-ratio) * 0.5)
+            )
           );
         }
       }
