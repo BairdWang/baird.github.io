@@ -1002,6 +1002,71 @@
         document.head.appendChild(scr);
       }
 
+      function squidVimeoEmbedSrc(vimeoId, showControls) {
+        var c = showControls ? "1" : "0";
+        return (
+          "https://player.vimeo.com/video/" +
+          vimeoId +
+          "?title=0&byline=0&portrait=0&controls=" +
+          c +
+          "&muted=1&autopause=1&playsinline=1&dnt=1&badge=0&vimeo_logo=0&progress_bar=" +
+          c
+        );
+      }
+
+      function squidSwapControls(wrap, showControls) {
+        var id = wrap.getAttribute("data-vimeo-id");
+        var iframe = wrap.querySelector("iframe");
+        if (!id || !iframe || wrap._squidSwapBusy) return;
+        var want = showControls ? "1" : "0";
+        if (wrap.getAttribute("data-squid-controls") === want) return;
+        var p = wrap._squidPlayer;
+        if (!p) return;
+        wrap._squidSwapBusy = true;
+        Promise.all([p.getCurrentTime(), p.getPaused()])
+          .then(function (arr) {
+            return { t: arr[0], paused: arr[1] };
+          })
+          .then(function (state) {
+            return p.pause().then(function () {
+              return state;
+            }).catch(function () {
+              return state;
+            });
+          })
+          .then(function (state) {
+            iframe.src = squidVimeoEmbedSrc(id, showControls);
+            wrap.setAttribute("data-squid-controls", want);
+            return new Promise(function (resolve, reject) {
+              function done() {
+                iframe.removeEventListener("load", done);
+                iframe.removeEventListener("error", err);
+                resolve(state);
+              }
+              function err() {
+                iframe.removeEventListener("load", done);
+                iframe.removeEventListener("error", err);
+                reject(new Error("iframe"));
+              }
+              iframe.addEventListener("load", done);
+              iframe.addEventListener("error", err);
+            });
+          })
+          .then(function (state) {
+            var np = new Vimeo.Player(iframe);
+            wrap._squidPlayer = np;
+            return np.setCurrentTime(state.t).then(function () {
+              return np.setMuted(true);
+            }).then(function () {
+              if (!state.paused) return np.play();
+            });
+          })
+          .catch(function () {})
+          .finally(function () {
+            wrap._squidSwapBusy = false;
+          });
+      }
+
       function initSquidVimeoPlayers() {
         teardownSquidVimeo();
         var wraps = bodyEl.querySelectorAll(".detail-video--squid-vimeo");
@@ -1009,35 +1074,60 @@
         ensureVimeoPlayerScript(function () {
           if (detailEl.hidden) return;
           var list = bodyEl.querySelectorAll(".detail-video--squid-vimeo");
+          var canHover =
+            typeof window.matchMedia === "function" &&
+            window.matchMedia("(hover: hover) and (pointer: fine)").matches;
           for (var w = 0; w < list.length; w++) {
             (function (wrap) {
               if (!wrap.isConnected) return;
               var iframe = wrap.querySelector("iframe");
               if (!iframe) return;
               var player = new Vimeo.Player(iframe);
+              wrap._squidPlayer = player;
+              if (!wrap.getAttribute("data-squid-controls")) {
+                wrap.setAttribute("data-squid-controls", "0");
+              }
               var io = new IntersectionObserver(
                 function (entries) {
                   entries.forEach(function (en) {
+                    var pl = wrap._squidPlayer;
+                    if (!pl) return;
                     var vis = en.isIntersecting && en.intersectionRatio >= 0.32;
                     if (vis) {
-                      player.setMuted(true).then(function () {
-                        return player.play();
+                      pl.setMuted(true).then(function () {
+                        return pl.play();
                       }).catch(function () {});
                     } else {
-                      player.pause().catch(function () {});
+                      pl.pause().catch(function () {});
                     }
                   });
                 },
                 { threshold: [0, 0.15, 0.32, 0.5, 0.75] }
               );
               io.observe(wrap);
+              var onEnter = function () {
+                squidSwapControls(wrap, true);
+              };
+              var onLeave = function () {
+                squidSwapControls(wrap, false);
+              };
+              if (canHover) {
+                wrap.addEventListener("mouseenter", onEnter);
+                wrap.addEventListener("mouseleave", onLeave);
+              }
               squidVimeoCleanups.push(function () {
+                if (canHover) {
+                  wrap.removeEventListener("mouseenter", onEnter);
+                  wrap.removeEventListener("mouseleave", onLeave);
+                }
                 io.disconnect();
-              });
-              squidVimeoCleanups.push(function () {
-                player.pause().catch(function () {});
-                if (typeof player.destroy === "function") {
-                  player.destroy().catch(function () {});
+                var pl = wrap._squidPlayer;
+                wrap._squidPlayer = null;
+                if (pl) {
+                  pl.pause().catch(function () {});
+                  if (typeof pl.destroy === "function") {
+                    pl.destroy().catch(function () {});
+                  }
                 }
               });
             })(list[w]);
@@ -1056,11 +1146,14 @@
       }
 
       function appendSquidVimeoVideo(html, vimeoId) {
+        var src = squidVimeoEmbedSrc(vimeoId, false);
         return (
           html +
-          '<div class="detail-video detail-video--squid-vimeo"><iframe src="https://player.vimeo.com/video/' +
+          '<div class="detail-video detail-video--squid-vimeo" data-vimeo-id="' +
           vimeoId +
-          '?title=0&amp;byline=0&amp;portrait=0&amp;controls=0&amp;muted=1&amp;autopause=1&amp;playsinline=1&amp;dnt=1&amp;badge=0&amp;vimeo_logo=0&amp;progress_bar=0" title="Embedded video" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen loading="lazy"></iframe></div>'
+          '" data-squid-controls="0"><iframe src="' +
+          src.replace(/&/g, "&amp;") +
+          '" title="Embedded video" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen loading="lazy"></iframe></div>'
         );
       }
 
