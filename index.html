@@ -1003,15 +1003,19 @@
       }
 
       function squidVimeoEmbedSrc(vimeoId, showControls) {
-        var c = showControls ? "1" : "0";
-        return (
+        var base =
           "https://player.vimeo.com/video/" +
           vimeoId +
-          "?title=0&byline=0&portrait=0&controls=" +
-          c +
-          "&muted=1&autopause=1&playsinline=1&dnt=1&badge=0&vimeo_logo=0&progress_bar=" +
-          c
-        );
+          "?title=0&byline=0&portrait=0&badge=0&vimeo_logo=0" +
+          "&muted=1&autopause=1&playsinline=1&dnt=1";
+        if (showControls) {
+          return (
+            base +
+            "&controls=1&progress_bar=1&keyboard=1&fullscreen=1&volume=1" +
+            "&pip=0&chromecast=0&cc=0&chapters=0&quality_selector=0&transcript=0"
+          );
+        }
+        return base + "&controls=0&progress_bar=0";
       }
 
       function squidSwapControls(wrap, showControls) {
@@ -1092,7 +1096,8 @@
                   entries.forEach(function (en) {
                     var pl = wrap._squidPlayer;
                     if (!pl) return;
-                    var vis = en.isIntersecting && en.intersectionRatio >= 0.32;
+                    var vis =
+                      en.isIntersecting && en.intersectionRatio >= 0.25;
                     if (vis) {
                       pl.setMuted(true).then(function () {
                         return pl.play();
@@ -1102,7 +1107,7 @@
                     }
                   });
                 },
-                { threshold: [0, 0.15, 0.32, 0.5, 0.75] }
+                { threshold: [0, 0.1, 0.25, 0.35, 0.5, 0.75, 1] }
               );
               io.observe(wrap);
               var onEnter = function () {
