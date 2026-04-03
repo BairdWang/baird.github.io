@@ -52,6 +52,8 @@
       margin: 0 auto;
       padding: clamp(0.625rem, 2vw, 1.25rem) clamp(1.25rem, 5vw, 3rem) clamp(4rem, 12vw, 7rem);
       box-sizing: border-box;
+      container-type: inline-size;
+      container-name: portfolio;
     }
 
     header {
@@ -61,11 +63,45 @@
 
     .name {
       margin: 0;
-      font-size: calc(clamp(3.375rem, 7.5vw, 4.05rem) * 0.85);
       font-weight: 100;
       letter-spacing: 0.06em;
       line-height: 1.1;
       transform: translateY(-10px);
+    }
+
+    /* Match homepage title scale to .thumb column: min(% of .page, --thumb-max-w) */
+    #page-root .page > header .name {
+      font-size: calc(clamp(3.375rem, 7.5vw, 4.05rem) * 0.85);
+    }
+
+    @supports (font-size: 1cqi) {
+      #page-root .page > header .name {
+        font-size: clamp(
+          1rem,
+          calc(min(29cqi, var(--thumb-max-w)) * 0.146),
+          calc(4.05rem * 0.85)
+        );
+      }
+
+      @media (max-width: 932px) {
+        #page-root .page > header .name {
+          font-size: clamp(
+            1rem,
+            calc(min(46.75cqi, var(--thumb-max-w)) * 0.146),
+            calc(4.05rem * 0.85)
+          );
+        }
+      }
+
+      @media (max-width: 540px) {
+        #page-root .page > header .name {
+          font-size: clamp(
+            1rem,
+            calc(min(100cqi, var(--thumb-max-w)) * 0.146),
+            calc(4.05rem * 0.85)
+          );
+        }
+      }
     }
 
     /* Adobe .project-covers + .project-cover */
@@ -208,6 +244,7 @@
       display: inline-flex;
       align-items: center;
       vertical-align: middle;
+      transform: translateY(5px);
     }
 
     .contact-copy {
@@ -373,6 +410,9 @@
       padding: 0;
       width: 100%;
       margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       text-align: left;
     }
 
@@ -418,18 +458,23 @@
     }
 
     .detail-note {
+      box-sizing: border-box;
       margin: 0 0 1.5rem;
       padding: 0;
       font-size: 0.9375rem;
       line-height: 1.6;
       color: var(--text-muted);
+      align-self: center;
+      width: min(100%, var(--detail-img-w));
     }
 
     .detail-video {
       position: relative;
-      width: 100%;
-      max-width: var(--detail-img-w);
+      box-sizing: border-box;
+      width: min(100%, var(--detail-img-w));
+      max-width: min(100%, var(--detail-img-w));
       margin: 0;
+      margin-inline: auto;
       aspect-ratio: 16 / 9;
       overflow: hidden;
       background: #111;
@@ -446,7 +491,10 @@
     .detail-figure {
       margin: 0;
       display: block;
-      max-width: 100%;
+      max-width: min(100%, var(--detail-img-w));
+      width: -moz-fit-content;
+      width: fit-content;
+      margin-inline: auto;
     }
 
     .detail-figure img {
@@ -884,6 +932,50 @@
         return html;
       }
 
+      function detailImgCapPx() {
+        var raw = getComputedStyle(document.documentElement).getPropertyValue("--detail-img-w").trim();
+        var n = parseInt(raw, 10);
+        return isNaN(n) ? 1890 : n;
+      }
+
+      var detailResizeTimer;
+
+      function syncDetailVideoWidths() {
+        if (detailEl.hidden) return;
+        var vids = bodyEl.querySelectorAll(".detail-video");
+        if (!vids.length) return;
+        var imgs = bodyEl.querySelectorAll(".detail-figure img");
+        var maxW = 0;
+        for (var i = 0; i < imgs.length; i++) {
+          maxW = Math.max(maxW, imgs[i].offsetWidth);
+        }
+        var limit = Math.min(bodyEl.clientWidth, detailImgCapPx());
+        var w = maxW > 0 ? Math.min(maxW, limit) : limit;
+        if (w < 1) w = limit;
+        for (var j = 0; j < vids.length; j++) {
+          vids[j].style.width = w + "px";
+          vids[j].style.maxWidth = "100%";
+        }
+      }
+
+      function bindDetailImgLoadsForVideoSync() {
+        function onImg() {
+          syncDetailVideoWidths();
+        }
+        var imgs = bodyEl.querySelectorAll(".detail-figure img");
+        for (var i = 0; i < imgs.length; i++) {
+          if (!imgs[i].complete) {
+            imgs[i].addEventListener("load", onImg);
+            imgs[i].addEventListener("error", onImg);
+          }
+        }
+      }
+
+      window.addEventListener("resize", function () {
+        window.clearTimeout(detailResizeTimer);
+        detailResizeTimer = window.setTimeout(syncDetailVideoWidths, 80);
+      });
+
       function renderProject(id) {
         var p = PROJECTS[id];
         if (!p) return;
@@ -945,6 +1037,11 @@
           var id = btn.getAttribute("data-project");
           renderProject(id);
           openProjectView();
+          requestAnimationFrame(function () {
+            syncDetailVideoWidths();
+            bindDetailImgLoadsForVideoSync();
+            requestAnimationFrame(syncDetailVideoWidths);
+          });
         });
       });
 
