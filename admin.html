@@ -111,6 +111,72 @@
       font-size: 13px;
     }
     .block-type { color: var(--muted); text-transform: uppercase; font-size: 11px; padding-top: 0.3rem; letter-spacing: 0.04em; }
+    .img-preview-box {
+      width: 72px;
+      height: 72px;
+      flex-shrink: 0;
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.28);
+      font-size: 1.75rem;
+      font-weight: 300;
+      color: var(--muted);
+      line-height: 1;
+    }
+    .img-preview-box.has-img {
+      border-style: solid;
+      padding: 0;
+    }
+    .img-preview-box.has-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .img-preview-box.is-bad {
+      font-size: 0.75rem;
+      padding: 0.25rem;
+      text-align: center;
+      color: #e8a0a0;
+    }
+    .img-preview-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-start;
+    }
+    .img-preview-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      align-items: flex-start;
+    }
+    .img-preview-strip .img-preview-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      max-width: 120px;
+    }
+    .img-preview-strip .img-preview-item .path-hint {
+      font-size: 10px;
+      color: var(--muted);
+      word-break: break-all;
+      max-height: 2.6em;
+      overflow: hidden;
+    }
+    .block-item-img {
+      display: grid;
+      grid-template-columns: 4.5rem 72px 1fr auto;
+      gap: 0.4rem;
+      align-items: start;
+      padding: 0.45rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
   </style>
 </head>
 <body>
@@ -180,6 +246,7 @@
       <input type="text" id="p-videos" placeholder="ewXXN0S81_Q, SDhmRwPpd_c" />
       <label style="margin-top:0.5rem;display:block">图片路径（每行一条，相对站点根目录）</label>
       <textarea id="p-images" rows="8"></textarea>
+      <div id="p-images-previews" class="img-preview-strip" aria-hidden="true"></div>
       <h2 style="margin-top:1rem">内容块（图片 / Vimeo 穿插）</h2>
       <p class="hint">若定义了块，前台优先显示块；可与上方图片列表同时保留作备份。</p>
       <label class="chk"><input type="checkbox" id="p-use-blocks" /> 启用块编辑器</label>
@@ -239,6 +306,62 @@
       return d;
     }
 
+    function resolveImageUrl(path) {
+      var p = (path || "").trim();
+      if (!p) return "";
+      if (/^https?:\/\//i.test(p)) return p;
+      try {
+        return new URL(p, window.location.href).href;
+      } catch (e) {
+        return p;
+      }
+    }
+
+    function fillPreviewBox(box, src) {
+      if (!box) return;
+      var s = (src || "").trim();
+      box.className = "img-preview-box" + (s ? " has-img" : "");
+      box.classList.remove("is-bad");
+      box.innerHTML = "";
+      if (!s) {
+        box.textContent = "+";
+        return;
+      }
+      var img = document.createElement("img");
+      img.alt = "";
+      img.loading = "lazy";
+      img.src = resolveImageUrl(s);
+      img.onerror = function () {
+        box.className = "img-preview-box is-bad";
+        box.innerHTML = "";
+        box.textContent = "无法加载";
+      };
+      box.appendChild(img);
+    }
+
+    function refreshProjectImagesPreviews() {
+      var ta = document.getElementById("p-images");
+      var host = document.getElementById("p-images-previews");
+      if (!ta || !host) return;
+      host.innerHTML = "";
+      var lines = ta.value.split("\n");
+      for (var i = 0; i < lines.length; i++) {
+        var item = document.createElement("div");
+        item.className = "img-preview-item";
+        var box = document.createElement("div");
+        fillPreviewBox(box, lines[i]);
+        item.appendChild(box);
+        var t = lines[i].trim();
+        if (t) {
+          var hint = document.createElement("div");
+          hint.className = "path-hint";
+          hint.textContent = t.length > 36 ? t.slice(0, 34) + "…" : t;
+          item.appendChild(hint);
+        }
+        host.appendChild(item);
+      }
+    }
+
     function syncRaw() {
       document.getElementById("raw-json").value = JSON.stringify(siteData, null, 2);
     }
@@ -265,6 +388,7 @@
       p.vimeoEmbedOptions = p.vimeoEmbedOptions || defaultVimeoOpts();
       buildVimeoOpts(p.vimeoEmbedOptions);
       renderBlockList(pid);
+      refreshProjectImagesPreviews();
     }
 
     function buildVimeoOpts(opts) {
@@ -302,17 +426,25 @@
         (function (idx) {
           var b = blocks[idx];
           var row = document.createElement("div");
-          row.className = "block-item";
+          row.className = b.type === "vimeo" ? "block-item" : "block-item-img";
           var t = document.createElement("div");
           t.className = "block-type";
           t.textContent = b.type === "vimeo" ? "Vimeo" : "图片";
+          var prevBox = null;
+          if (b.type !== "vimeo") {
+            prevBox = document.createElement("div");
+            fillPreviewBox(prevBox, b.src || "");
+          }
           var main = document.createElement("input");
           main.type = "text";
           main.value = b.type === "vimeo" ? (b.id || "") : (b.src || "");
           main.placeholder = b.type === "vimeo" ? "Vimeo ID" : "assets/img/…";
           main.addEventListener("input", function () {
             if (b.type === "vimeo") b.id = main.value.trim();
-            else b.src = main.value.trim();
+            else {
+              b.src = main.value.trim();
+              if (prevBox) fillPreviewBox(prevBox, b.src);
+            }
             syncRaw();
           });
           var act = document.createElement("div");
@@ -347,6 +479,7 @@
           act.appendChild(down);
           act.appendChild(del);
           row.appendChild(t);
+          if (prevBox) row.appendChild(prevBox);
           row.appendChild(main);
           row.appendChild(act);
           host.appendChild(row);
@@ -384,8 +517,31 @@
           row.appendChild(field("ID", "id", "squid-game-unleashed"));
           row.appendChild(field("标题", "caption", ""));
           var col = document.createElement("div");
-          col.appendChild(field("缩略图", "thumb", "assets/img/…"));
-          col.appendChild(field("alt", "alt", ""));
+          col.className = "img-preview-row";
+          var thumbPrev = document.createElement("div");
+          fillPreviewBox(thumbPrev, w.thumb || "");
+          var thumbStack = document.createElement("div");
+          thumbStack.style.flex = "1";
+          thumbStack.style.minWidth = "0";
+          var thumbLb = document.createElement("label");
+          thumbLb.style.fontSize = "11px";
+          thumbLb.style.color = "var(--muted)";
+          thumbLb.textContent = "缩略图";
+          var thumbIn = document.createElement("input");
+          thumbIn.type = "text";
+          thumbIn.placeholder = "assets/img/…";
+          thumbIn.value = w.thumb || "";
+          thumbIn.addEventListener("input", function () {
+            w.thumb = thumbIn.value;
+            fillPreviewBox(thumbPrev, w.thumb);
+            syncRaw();
+          });
+          thumbStack.appendChild(thumbLb);
+          thumbStack.appendChild(thumbIn);
+          var altWrap = field("alt", "alt", "");
+          col.appendChild(thumbPrev);
+          col.appendChild(thumbStack);
+          col.appendChild(altWrap);
           row.appendChild(col);
           var actions = document.createElement("div");
           actions.className = "work-actions";
@@ -485,6 +641,7 @@
         var p = ensureProject(currentProjectId());
         p.images = this.value.split("\n").map(function (s) { return s.trim(); }).filter(Boolean);
         syncRaw();
+        refreshProjectImagesPreviews();
       });
       document.getElementById("p-use-blocks").addEventListener("change", function () {
         var p = ensureProject(currentProjectId());
