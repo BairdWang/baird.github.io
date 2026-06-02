@@ -65,6 +65,96 @@
       text-align: center;
     }
 
+    .site-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 124px;
+      width: 100%;
+      min-height: 116px;
+      padding: 0 28px;
+      background: #080808;
+      position: relative;
+    }
+
+    .site-nav-link {
+      color: rgba(245, 245, 245, 0.68);
+      font-size: 42px;
+      font-weight: 300;
+      line-height: 1;
+      letter-spacing: 0;
+      text-decoration: none;
+      transition: color 0.16s ease;
+    }
+
+    .site-nav-home {
+      position: absolute;
+      left: 29px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text);
+      font-size: 22px;
+      font-weight: 400;
+      letter-spacing: 0;
+    }
+
+    .site-nav-avatar {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      overflow: hidden;
+      background: #111111;
+      flex: 0 0 auto;
+    }
+
+    .site-nav-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .avatar-fallback {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      background:
+        radial-gradient(circle at 32% 28%, #ffd65a 0 15%, transparent 16%),
+        linear-gradient(135deg, #9b1d2d, #2a2f77 50%, #f0a629);
+      color: #ffffff;
+      font-size: clamp(0.78rem, 1.2vw, 1.05rem);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+
+    .site-nav-avatar.has-image .avatar-fallback {
+      display: none;
+    }
+
+    .site-nav-current {
+      color: #ffffff;
+      font-weight: 400;
+      font-size: 58px;
+    }
+
+    .site-nav-link:hover,
+    .site-nav-link:focus-visible {
+      color: #ffffff;
+      outline: none;
+    }
+
+    .portfolio-heading {
+      display: none;
+    }
+
     .name {
       margin: 0;
       font-weight: 100;
@@ -84,10 +174,6 @@
 
     /* Narrowest: double space above "Baird Wang"; caption ratio uses @supports block below */
     @media (max-width: 540px) {
-      #page-root .page {
-        padding-top: calc(clamp(0.625rem, 2vw, 1.25rem) * 2);
-      }
-
       #page-root .page > header .name {
         font-size: calc(clamp(3.375rem, 7.5vw, 4.05rem) * 0.85 * 0.5);
       }
@@ -552,6 +638,33 @@
     }
 
     /* Phones: full-bleed media; header/footer keep small horizontal inset + safe area */
+
+    @media (max-width: 840px) {
+      .site-nav {
+        min-height: 108px;
+        justify-content: flex-end;
+        gap: 1.5rem;
+      }
+
+      .site-nav-home {
+        gap: 0.55rem;
+        font-size: 1rem;
+      }
+
+      .site-nav-avatar {
+        width: 2.35rem;
+        height: 2.35rem;
+        font-size: 0.72rem;
+      }
+
+      .site-nav-link:not(.site-nav-home) {
+        font-size: 1.7rem;
+      }
+
+      .site-nav-current {
+        font-size: 2rem;
+      }
+    }
     @media (max-width: 600px) {
       .project-view {
         padding-left: 0;
@@ -633,6 +746,31 @@
     }
 
     @media (max-width: 540px) {
+      .site-nav {
+        min-height: 108px;
+        justify-content: flex-end;
+        gap: 1.5rem;
+      }
+
+      .site-nav-home {
+        gap: 0.55rem;
+        font-size: 1rem;
+      }
+
+      .site-nav-avatar {
+        width: 2.35rem;
+        height: 2.35rem;
+        font-size: 0.72rem;
+      }
+
+      .site-nav-link:not(.site-nav-home) {
+        font-size: 1.7rem;
+      }
+
+      .site-nav-current {
+        font-size: 2rem;
+      }
+
       .works {
         padding-top: calc(18px * 2 / 3 / 2);
       }
@@ -647,8 +785,16 @@
 </head>
 <body>
   <div id="page-root">
+  <nav class="site-nav" aria-label="Primary navigation">
+    <a class="site-nav-link site-nav-home" href="index.html">
+      <span class="site-nav-avatar" aria-hidden="true"><img src="assets/img/avatar.png" alt="" onload="this.parentElement.classList.add('has-image')" onerror="this.remove()" /><span class="avatar-fallback">BW</span></span>
+      <span>Baird Wang</span>
+    </a>
+    <a class="site-nav-link site-nav-current" href="index.html" aria-current="page">Work</a>
+    <a class="site-nav-link" href="tool.html">Tool</a>
+  </nav>
   <div class="page">
-    <header>
+    <header class="portfolio-heading">
       <h1 class="name">Baird Wang</h1>
     </header>
 
